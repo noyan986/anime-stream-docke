@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Anime Streamer</title>
+  <style>
+    body { background: #0d0d0d; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
+    input, button { padding: 10px; font-size: 16px; }
+    .anime-list, .episode-list { margin-top: 20px; display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+    .anime-item, .episode-item { background: #1f1f1f; padding: 10px 15px; border-radius: 8px; cursor: pointer; }
+    .anime-item:hover, .episode-item:hover { background: #333; }
+    video { margin-top: 20px; width: 80%; border: 2px solid #444; border-radius: 10px; }
+  </style>
+</head>
+<body>
+  <h1>Anime Streaming</h1>
+  <input type="text" id="search" placeholder="Search anime...">
+  <button onclick="searchAnime()">Search</button>
+
+  <div class="anime-list" id="animeList"></div>
+  <div class="episode-list" id="episodeList"></div>
+
+  <video id="videoPlayer" controls></video>
+
+  <script>
+    async function searchAnime() {
+      const query = document.getElementById('search').value;
+      const res = await fetch(`https://api.consumet.org/anime/gogo/${encodeURIComponent(query)}`);
+      const data = await res.json();
+      const animeList = document.getElementById('animeList');
+      animeList.innerHTML = '';
+      data.results.forEach(anime => {
+        const div = document.createElement('div');
+        div.className = 'anime-item';
+        div.textContent = anime.title;
+        div.onclick = () => loadEpisodes(anime.id);
+        animeList.appendChild(div);
+      });
+    }
+
+    async function loadEpisodes(id) {
+      const res = await fetch(`https://api.consumet.org/anime/gogo/info/${id}`);
+      const data = await res.json();
+      const episodeList = document.getElementById('episodeList');
+      episodeList.innerHTML = '';
+      data.episodes.slice().reverse().forEach(ep => {
+        const div = document.createElement('div');
+        div.className = 'episode-item';
+        div.textContent = `Episode ${ep.number}`;
+        div.onclick = () => playEpisode(ep.id);
+        episodeList.appendChild(div);
+      });
+    }
+
+    async function playEpisode(episodeId) {
+      const res = await fetch(`api.php?ep=${episodeId}`);
+      const data = await res.json();
+      if (data.video) {
+        const player = document.getElementById('videoPlayer');
+        player.src = data.video;
+        player.play();
+      } else {
+        alert('Video not found');
+      }
+    }
+  </script>
+</body>
+</html>
