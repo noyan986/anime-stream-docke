@@ -1,0 +1,12 @@
+# Exported from Render on 2025-06-21T22:01:22Z
+services:
+- type: web
+  name: anime-stream-docke
+  runtime: docker
+  repo: https://github.com/noyan986/anime-stream-docke
+  plan: free
+  region: oregon
+  dockerContext: .
+  dockerfilePath: ./Dockerfile
+  autoDeployTrigger: commit
+version: "1"
